@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/UI/Header";
+import { KanbanProvider } from "@/context/kanbanProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,13 +32,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} flex flex-col h-screen`}
       >
-        <Header />
-        {/* 💡 가로 스크롤이 브라우저에서 동작하도록 설정 */}
-        <main className="w-full flex-1 pt-16">
-          <div className="w-full max-w-[80rem] mx-auto h-full flex flex-col">
-            {children}
-          </div>
-        </main>
+        <KanbanProvider>
+          <Header />
+          <main className="w-full flex-1 pt-16">
+            <div className="w-full max-w-[80rem] mx-auto h-full flex flex-col">
+              {children}
+            </div>
+          </main>
+        </KanbanProvider>
       </body>
     </html>
   );
