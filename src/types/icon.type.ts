@@ -1,10 +1,13 @@
 export type IconType =
-  | "arrow-left"
-  | "arrow-right"
   | "calender"
+  | "clock"
   | "dots-column"
   | "dots-row"
   | "down"
   | "pencil"
+  | "plus"
+  | "plus-circle"
   | "search"
-  | "trash";
+  | "trash"
+  | "undo"
+  | "redo";
