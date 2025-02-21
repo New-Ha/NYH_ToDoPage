@@ -32,7 +32,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} flex flex-col h-screen`}
       >
         <Header />
-        <main className="flex-1 pt-24 overflow-x-auto p-10">{children}</main>
+        {/* 💡 가로 스크롤이 브라우저에서 동작하도록 설정 */}
+        <main className="w-full flex-1 pt-16">
+          <div className="w-full max-w-[80rem] mx-auto h-full flex flex-col">
+            {children}
+          </div>
+        </main>
       </body>
     </html>
   );
