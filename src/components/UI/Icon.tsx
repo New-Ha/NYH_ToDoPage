@@ -18,7 +18,7 @@ interface IconProps {
   height?: number;
 }
 
-const iconMap: Record<IconType, unknown> = {
+const iconMap: Record<IconType, string> = {
   "arrow-left": arrowLeft,
   "arrow-right": arrowRight,
   calender: calender,
@@ -39,10 +39,6 @@ const Icon: React.FC<IconProps> = ({
   ...restProps
 }) => {
   const src = iconMap[type];
-
-  if (typeof src !== "string") {
-    throw new Error("존재하지 않는 아이콘입니다.");
-  }
 
   return (
     <Image
