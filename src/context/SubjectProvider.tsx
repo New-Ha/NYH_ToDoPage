@@ -1,6 +1,11 @@
 "use client";
 
-import { SubjectsType, SubjectType } from "@/types/kanban.type";
+import {
+  BoardType,
+  SubjectsType,
+  SubjectType,
+  ToDoType,
+} from "@/types/kanban.type";
 import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
@@ -43,12 +48,31 @@ export const SubjectProvider = ({
 
   const addSubject = (name: string): string => {
     const subjectId = crypto.randomUUID();
-    const newSubject: SubjectType = { id: subjectId, name, boards: [] };
+    const defaultBoardId = crypto.randomUUID();
+    const defaultToDoId = crypto.randomUUID();
+    const newTodo: ToDoType = {
+      id: defaultToDoId,
+      boardId: defaultBoardId,
+      content: "할 일을 정리해보세요!",
+      createdAt: new Date(),
+    };
+    const newBoard: BoardType = {
+      id: defaultBoardId,
+      title: "할 일",
+      todos: [defaultToDoId],
+    };
+    const newSubject: SubjectType = {
+      id: subjectId,
+      name,
+      boards: [defaultBoardId],
+    };
 
     const updatedSubjects = [...subjects, subjectId];
 
     localStorage.setItem("subjects", JSON.stringify(updatedSubjects));
     localStorage.setItem(`subject_${subjectId}`, JSON.stringify(newSubject));
+    localStorage.setItem(`board_${defaultBoardId}`, JSON.stringify(newBoard));
+    localStorage.setItem(`todo_${defaultToDoId}`, JSON.stringify(newTodo));
 
     setSubjects(updatedSubjects);
     return subjectId;
