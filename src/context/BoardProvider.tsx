@@ -6,6 +6,7 @@ import { BoardType } from "@/types/kanban.type";
 
 type BoardContextType = {
   boards: BoardType[];
+  getBoards: (boardId: string) => BoardType[];
   addBoard: (subjectId: string, title: string) => BoardType;
   deleteBoard: (subjectId: string, boardId: string) => void;
   updateBoardTitle: (boardId: string, newTitle: string) => void;
@@ -80,7 +81,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <BoardContext.Provider
-      value={{ boards, addBoard, deleteBoard, updateBoardTitle }}
+      value={{ boards, getBoards, addBoard, deleteBoard, updateBoardTitle }}
     >
       {children}
     </BoardContext.Provider>
