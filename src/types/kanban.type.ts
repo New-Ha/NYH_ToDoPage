@@ -6,13 +6,18 @@ export type ToDoType = {
 };
 
 export type BoardType = {
-  [boardId: string]: ToDoType[];
+  id: string;
+  title: string;
+  todos: string[];
 };
 
 export type SubjectType = {
+  id: string;
   name: string;
-  boards: BoardType;
+  boards: string[];
 };
+
+export type SubjectsType = string[];
 
 export type KanbanType = {
   [subjectId: string]: SubjectType;
