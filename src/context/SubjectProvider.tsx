@@ -116,10 +116,6 @@ export const SubjectProvider = ({
     subject.name = newName;
     localStorage.setItem(`subject_${subjectId}`, JSON.stringify(subject));
 
-    setSubjects((prev) =>
-      prev.map((id) => (id === subjectId ? subjectId : id))
-    );
-
     setSubjectNames((prev) =>
       prev.map((s) => (s.id === subjectId ? { ...s, name: newName } : s))
     );
@@ -127,7 +123,12 @@ export const SubjectProvider = ({
 
   return (
     <SubjectContext.Provider
-      value={{ subjectNames, addSubject, deleteSubject, updateSubjectName }}
+      value={{
+        subjectNames,
+        addSubject,
+        deleteSubject,
+        updateSubjectName,
+      }}
     >
       {children}
     </SubjectContext.Provider>
