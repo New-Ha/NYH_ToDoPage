@@ -2,6 +2,7 @@ import { IconType } from "@/types/icon.type";
 import Image from "next/image";
 import calender from "@/assets/calender.svg";
 import clock from "@/assets/clock.svg";
+import checkCircle from "@/assets/check-circle.svg";
 import dotsColumn from "@/assets/dots-column.svg";
 import dotsRow from "@/assets/dots-row.svg";
 import down from "@/assets/down.svg";
@@ -24,6 +25,7 @@ interface IconProps {
 const iconMap: Record<IconType, string> = {
   calender: calender,
   clock: clock,
+  "check-circle": checkCircle,
   "dots-column": dotsColumn,
   "dots-row": dotsRow,
   down: down,
