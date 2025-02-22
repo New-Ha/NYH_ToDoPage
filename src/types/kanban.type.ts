@@ -18,7 +18,3 @@ export type SubjectType = {
 };
 
 export type SubjectsType = string[];
-
-export type KanbanType = {
-  [subjectId: string]: SubjectType;
-};
