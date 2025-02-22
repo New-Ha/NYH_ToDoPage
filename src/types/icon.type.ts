@@ -1,6 +1,7 @@
 export type IconType =
   | "calender"
   | "clock"
+  | "check-circle"
   | "dots-column"
   | "dots-row"
   | "down"
