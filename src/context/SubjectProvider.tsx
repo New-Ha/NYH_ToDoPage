@@ -1,6 +1,7 @@
 "use client";
 
 import { SubjectsType, SubjectType } from "@/types/kanban.type";
+import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 type SubjectNameType = {
@@ -22,6 +23,7 @@ export const SubjectProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const router = useRouter();
   const [subjects, setSubjects] = useState<SubjectsType>([]);
   const [subjectNames, setSubjectNames] = useState<SubjectNameType[]>([]);
 
@@ -59,6 +61,14 @@ export const SubjectProvider = ({
     if (!subject) return;
 
     subject.boards.forEach((boardId: string) => {
+      const board = JSON.parse(
+        localStorage.getItem(`board_${boardId}`) || "null"
+      );
+      if (board) {
+        board.todos.forEach((todoId: string) => {
+          localStorage.removeItem(`todo_${todoId}`);
+        });
+      }
       localStorage.removeItem(`board_${boardId}`);
     });
 
@@ -67,6 +77,10 @@ export const SubjectProvider = ({
     const updatedSubjects = subjects.filter((id) => id !== subjectId);
     localStorage.setItem("subjects", JSON.stringify(updatedSubjects));
     setSubjects(updatedSubjects);
+
+    setSubjectNames((prev) => prev.filter((s) => s.id !== subjectId));
+
+    router.push("/");
   };
 
   const updateSubjectName = (subjectId: string, newName: string) => {
@@ -77,6 +91,10 @@ export const SubjectProvider = ({
 
     subject.name = newName;
     localStorage.setItem(`subject_${subjectId}`, JSON.stringify(subject));
+
+    setSubjects((prev) =>
+      prev.map((id) => (id === subjectId ? subjectId : id))
+    );
 
     setSubjectNames((prev) =>
       prev.map((s) => (s.id === subjectId ? { ...s, name: newName } : s))
