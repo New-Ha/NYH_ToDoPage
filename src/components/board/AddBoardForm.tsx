@@ -1,20 +1,14 @@
 "use client";
 
 import { useBoard } from "@/context/BoardProvider";
-import { BoardType } from "@/types/kanban.type";
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
 
 type AddBoardFormPropsType = {
   subjectId: string;
   onCancel: () => void;
-  setBoardList: React.Dispatch<SetStateAction<BoardType[]>>;
 };
 
-const AddBoardForm = ({
-  subjectId,
-  onCancel,
-  setBoardList,
-}: AddBoardFormPropsType) => {
+const AddBoardForm = ({ subjectId, onCancel }: AddBoardFormPropsType) => {
   const { addBoard } = useBoard();
   const [newBoardName, setNewBoardName] = useState("");
 
@@ -24,8 +18,7 @@ const AddBoardForm = ({
       return;
     }
 
-    const newBoard = addBoard(subjectId, newBoardName);
-    setBoardList((prev) => [...prev, newBoard]);
+    addBoard(subjectId, newBoardName);
     setNewBoardName("");
 
     onCancel();

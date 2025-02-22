@@ -17,21 +17,22 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   const { id: subjectId } = useParams();
   const [boards, setBoards] = useState<BoardType[]>([]);
 
-  useEffect(() => {
-    if (!subjectId) return;
-
+  const getBoards = (subjectId: string): BoardType[] => {
     const subject = JSON.parse(
       localStorage.getItem(`subject_${subjectId}`) || "null"
     );
-    if (!subject) return;
+    if (!subject) return [];
 
-    const boardList = subject.boards
+    return subject.boards
       .map((boardId: string) =>
         JSON.parse(localStorage.getItem(`board_${boardId}`) || "null")
       )
       .filter(Boolean);
+  };
 
-    setBoards(boardList);
+  useEffect(() => {
+    if (!subjectId) return;
+    setBoards(getBoards(subjectId as string));
   }, [subjectId]);
 
   const addBoard = (subjectId: string, title: string): BoardType => {
@@ -41,29 +42,17 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     const subject = JSON.parse(
       localStorage.getItem(`subject_${subjectId}`) || "null"
     );
+    if (!subject) return newBoard;
 
-    const updatedBoards = [...subject.boards, newBoardId];
-    subject.boards = updatedBoards;
-
+    subject.boards.push(newBoardId);
     localStorage.setItem(`subject_${subjectId}`, JSON.stringify(subject));
     localStorage.setItem(`board_${newBoardId}`, JSON.stringify(newBoard));
 
-    setBoards((prev) => [...prev, newBoard]);
-
+    setBoards(getBoards(subjectId));
     return newBoard;
   };
 
   const deleteBoard = (subjectId: string, boardId: string) => {
-    const board = JSON.parse(
-      localStorage.getItem(`board_${boardId}`) || "null"
-    );
-
-    if (board) {
-      board.todos.forEach((todoId: string) => {
-        localStorage.removeItem(`todo_${todoId}`);
-      });
-    }
-
     localStorage.removeItem(`board_${boardId}`);
 
     const subject = JSON.parse(
@@ -74,7 +63,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     subject.boards = subject.boards.filter((id: string) => id !== boardId);
     localStorage.setItem(`subject_${subjectId}`, JSON.stringify(subject));
 
-    setBoards((prev) => prev.filter((b) => b.id !== boardId));
+    setBoards(getBoards(subjectId));
   };
 
   const updateBoardTitle = (boardId: string, newTitle: string) => {
@@ -86,9 +75,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     board.title = newTitle;
     localStorage.setItem(`board_${boardId}`, JSON.stringify(board));
 
-    setBoards((prev) =>
-      prev.map((b) => (b.id === boardId ? { ...b, title: newTitle } : b))
-    );
+    setBoards(getBoards(subjectId as string));
   };
 
   return (
