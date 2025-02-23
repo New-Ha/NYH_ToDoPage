@@ -1,60 +1,63 @@
 import { IconType } from "@/types/icon.type";
-import Image from "next/image";
-import calender from "@/assets/calender.svg";
-import clock from "@/assets/clock.svg";
-import checkCircle from "@/assets/check-circle.svg";
-import dotsColumn from "@/assets/dots-column.svg";
-import dotsRow from "@/assets/dots-row.svg";
-import down from "@/assets/down.svg";
-import pencil from "@/assets/pencil.svg";
-import plus from "@/assets/plus.svg";
-import plusCircle from "@/assets/plus-circle.svg";
-import search from "@/assets/search.svg";
-import trash from "@/assets/trash.svg";
-import undo from "@/assets/undo.svg";
-import redo from "@/assets/redo.svg";
 
-interface IconProps {
+import CalenderIcon from "@/assets/calender.svg";
+import ClockIcon from "@/assets/clock.svg";
+import CheckCircleIcon from "@/assets/check-circle.svg";
+import DotsColumnIcon from "@/assets/dots-column.svg";
+import DotsRowIcon from "@/assets/dots-row.svg";
+import DownIcon from "@/assets/down.svg";
+import PencilIcon from "@/assets/pencil.svg";
+import PlusIcon from "@/assets/plus.svg";
+import PlusCircleIcon from "@/assets/plus-circle.svg";
+import SearchIcon from "@/assets/search.svg";
+import TrashIcon from "@/assets/trash.svg";
+import UndoIcon from "@/assets/undo.svg";
+import RedoIcon from "@/assets/redo.svg";
+
+const iconMap: Record<IconType, React.FC<React.SVGProps<SVGSVGElement>>> = {
+  calender: CalenderIcon,
+  clock: ClockIcon,
+  "check-circle": CheckCircleIcon,
+  "dots-column": DotsColumnIcon,
+  "dots-row": DotsRowIcon,
+  down: DownIcon,
+  pencil: PencilIcon,
+  plus: PlusIcon,
+  "plus-circle": PlusCircleIcon,
+  search: SearchIcon,
+  trash: TrashIcon,
+  undo: UndoIcon,
+  redo: RedoIcon,
+};
+
+interface IconProps extends React.SVGProps<SVGSVGElement> {
   type: IconType;
-  alt?: string;
-  className?: string;
   width?: number;
   height?: number;
+  fill?: string;
+  className?: string;
 }
-
-const iconMap: Record<IconType, string> = {
-  calender: calender,
-  clock: clock,
-  "check-circle": checkCircle,
-  "dots-column": dotsColumn,
-  "dots-row": dotsRow,
-  down: down,
-  pencil: pencil,
-  plus: plus,
-  "plus-circle": plusCircle,
-  search: search,
-  trash: trash,
-  undo: undo,
-  redo: redo,
-};
 
 const Icon: React.FC<IconProps> = ({
   type,
-  alt = "",
   className = "",
-  width = 24,
-  height = 24,
+  width = 20,
+  height = 20,
+  fill = "currentColor",
   ...restProps
-}) => {
-  const src = iconMap[type];
+}: IconProps) => {
+  const IconComponent = iconMap[type];
+
+  if (!IconComponent) {
+    return null;
+  }
 
   return (
-    <Image
-      src={src}
-      alt={alt}
-      className={className}
+    <IconComponent
       width={width}
       height={height}
+      fill={fill}
+      className={className}
       {...restProps}
     />
   );
