@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useSubject } from "@/context/SubjectProvider";
 import { SubjectType } from "@/types/kanban.type";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
 import BoardList from "@/components/board/BoardList";
 import Icon from "@/components/UI/Icon";
-import { DndContext } from "@dnd-kit/core";
 
 const SubjectClientPage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -58,6 +59,27 @@ const SubjectClientPage = () => {
 
   const handleCancelAddingBoard = () => {
     setIsAddingBoard(false);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    if (!subject || !subject.boards) return;
+    const oldIndex = subject.boards.indexOf(String(active.id));
+    const newIndex = subject.boards.indexOf(String(over.id));
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newBoardsOrder = arrayMove(subject.boards, oldIndex, newIndex);
+
+    const updatedSubject = { ...subject, boards: newBoardsOrder };
+    localStorage.setItem(
+      `subject_${subjectId}`,
+      JSON.stringify(updatedSubject)
+    );
+
+    setSubject(updatedSubject);
   };
 
   useEffect(() => {
@@ -165,7 +187,7 @@ const SubjectClientPage = () => {
           )}
         </div>
       </div>
-      <DndContext>
+      <DndContext onDragEnd={handleDragEnd}>
         <div className="w-full overflow-x-auto flex-1 min-h-0">
           <BoardList
             subjectId={subjectId as string}
