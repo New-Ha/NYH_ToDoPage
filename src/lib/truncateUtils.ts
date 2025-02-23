@@ -6,7 +6,7 @@ function truncateString(text: string, maxLength: number) {
 }
 
 export function formatSubjectName(subjectName: string) {
-  return truncateString(subjectName, 5);
+  return truncateString(subjectName, 7);
 }
 
 export function formatBoardName(boardName: string) {

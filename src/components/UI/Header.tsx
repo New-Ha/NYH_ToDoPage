@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import SearchBar from "./SearchBar";
 import { useSubject } from "@/context/SubjectProvider";
+import Icon from "./Icon";
+import { formatSubjectName } from "@/lib/truncateUtils";
 
 const Header = () => {
   const router = useRouter();
@@ -37,14 +39,14 @@ const Header = () => {
                 id === subjectId && "border-b-[4px] border-primary text-primary"
               }`}
             >
-              {name}
+              {formatSubjectName(name)}
             </button>
           ))}
           {isAddingSubject ? (
             <>
               <input
                 type="text"
-                className="w-[14rem] border-[1px] border-primary rounded-md py-1 px-2 text-[1rem] focus:outline-none"
+                className="w-[14rem] border-[1px] border-primary rounded-md py-2 px-3 text-[1rem] focus:outline-none placeholder:text-grayText"
                 onChange={(e) => setSubjectName(e.target.value)}
                 placeholder="주제명을 작성해주세요."
               />
@@ -57,8 +59,12 @@ const Header = () => {
               </button>
             </>
           ) : (
-            <button type="button" onClick={() => setIsAddingSubject(true)}>
-              +
+            <button
+              type="button"
+              className="size-[2.5rem] flex justify-center items-center rounded-md text-grayText border-[1px] border-border hover:bg-primary hover:text-white"
+              onClick={() => setIsAddingSubject(true)}
+            >
+              <Icon type="plus" className="w-6 h-6" />
             </button>
           )}
         </div>
