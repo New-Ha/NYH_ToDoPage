@@ -83,7 +83,7 @@ const ToDoItem = ({ todo }: { todo: ToDoType }) => {
               <button
                 type="button"
                 onClick={handleSaveEdit}
-                className="p-1 rounded-full hover:bg-primary hover:text-white"
+                className="p-1 rounded-md text-grayText hover:bg-primary hover:text-white"
               >
                 <Icon type="check" />
               </button>
@@ -91,7 +91,7 @@ const ToDoItem = ({ todo }: { todo: ToDoType }) => {
               <button
                 type="button"
                 onClick={handleStartContentEdit}
-                className="p-1 rounded-md hover:bg-border"
+                className="p-1 rounded-md text-grayText hover:bg-border hover:text-primary"
               >
                 <Icon type="pencil" />
               </button>
@@ -99,7 +99,7 @@ const ToDoItem = ({ todo }: { todo: ToDoType }) => {
             {!contentEditState.isEditing && (
               <button
                 type="button"
-                className="p-1 rounded-md hover:bg-border hover:text-rose-600"
+                className="p-1 rounded-md text-grayText hover:bg-border hover:text-rose-600"
                 onClick={() => deleteTodo(todo.boardId, todo.id)}
               >
                 <Icon type="trash" />
@@ -107,7 +107,7 @@ const ToDoItem = ({ todo }: { todo: ToDoType }) => {
             )}
             <button
               type="button"
-              className="p-1 rounded-md hover:bg-border"
+              className="p-1 rounded-md text-grayText hover:bg-border hover:text-black"
               onClick={handleCancelEdit}
             >
               <Icon type="x" className="w-5 h-5" />
@@ -117,7 +117,7 @@ const ToDoItem = ({ todo }: { todo: ToDoType }) => {
           <button
             type="button"
             onClick={handleStartEditMode}
-            className="py-1 px-1 rounded-md hover:bg-border"
+            className="py-1 px-1 rounded-md text-gray-500 hover:bg-border hover:text-black"
           >
             <Icon type="dots-row" className="w-5 h-5" />
           </button>
