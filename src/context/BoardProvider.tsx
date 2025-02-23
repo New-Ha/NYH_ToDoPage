@@ -36,7 +36,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     setBoards(getBoards(subjectId as string));
   }, [subjectId]);
 
-  const addBoard = (subjectId: string, title: string): BoardType => {
+  const addBoard = (subjectId: string, title: string): BoardType | null => {
     const newBoardId = crypto.randomUUID();
     const newBoard: BoardType = { id: newBoardId, title, todos: [] };
 
@@ -44,6 +44,10 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.getItem(`subject_${subjectId}`) || "null"
     );
     if (!subject) return newBoard;
+    if (subject.boards.length >= 10) {
+      alert("최대 10개의 보드만 추가할 수 있습니다.");
+      return null;
+    }
 
     subject.boards.push(newBoardId);
     localStorage.setItem(`subject_${subjectId}`, JSON.stringify(subject));

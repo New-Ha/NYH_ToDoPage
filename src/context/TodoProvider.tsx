@@ -54,6 +54,13 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
     );
     if (!board) return;
 
+    if (board.todos.length >= 20) {
+      alert(
+        "한 보드에는 최대 20개의 할 일만 추가할 수 있습니다. 보드를 세분화하세요."
+      );
+      return;
+    }
+
     board.todos.push(newTodo.id);
     localStorage.setItem(`board_${boardId}`, JSON.stringify(board));
 

@@ -46,7 +46,12 @@ export const SubjectProvider = ({
     setSubjectNames(updatedSubjectNames);
   }, [subjects]);
 
-  const addSubject = (name: string): string => {
+  const addSubject = (name: string): string | null => {
+    if (subjects.length >= 5) {
+      alert("최대 5개의 주제만 추가할 수 있습니다. 기존 주제를 정리해주세요.");
+      return null;
+    }
+
     const subjectId = crypto.randomUUID();
     const defaultBoardId = crypto.randomUUID();
     const defaultToDoId = crypto.randomUUID();
