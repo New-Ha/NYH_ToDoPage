@@ -6,11 +6,13 @@ import { useSubject } from "@/context/SubjectProvider";
 import { SubjectType } from "@/types/kanban.type";
 import BoardList from "@/components/board/BoardList";
 import Icon from "@/components/UI/Icon";
+import { DndContext } from "@dnd-kit/core";
 
 const SubjectClientPage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { id: subjectId } = useParams();
   const { updateSubjectName, deleteSubject } = useSubject();
+
   const [subject, setSubject] = useState<SubjectType | null>(null);
   const [isEditingMode, setIsEditingMode] = useState(false);
   const [subjectTitleEditState, setSubjectTitleEditState] = useState({
@@ -92,7 +94,6 @@ const SubjectClientPage = () => {
             <Icon type="redo" className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-
         <h1 className="font-bold text-primary text-xl text-[1.5rem] z-10">
           {subjectTitleEditState.isEditing ? (
             <div className="flex flex-row gap-3">
@@ -116,7 +117,6 @@ const SubjectClientPage = () => {
             <span className="text-[1.5rem]">{subject.name}</span>
           )}
         </h1>
-
         <div className="flex flex-row justify-end">
           {!isEditingMode && (
             <button
@@ -165,14 +165,16 @@ const SubjectClientPage = () => {
           )}
         </div>
       </div>
-      <div className="w-full overflow-x-auto flex-1 min-h-0">
-        <BoardList
-          subjectId={subjectId as string}
-          isAddingBoard={isAddingBoard}
-          onClickStartAddingBoard={handleStartAddingBoard}
-          onCancelAddingBoard={handleCancelAddingBoard}
-        />
-      </div>
+      <DndContext>
+        <div className="w-full overflow-x-auto flex-1 min-h-0">
+          <BoardList
+            subjectId={subjectId as string}
+            isAddingBoard={isAddingBoard}
+            onClickStartAddingBoard={handleStartAddingBoard}
+            onCancelAddingBoard={handleCancelAddingBoard}
+          />
+        </div>
+      </DndContext>
     </div>
   );
 };
