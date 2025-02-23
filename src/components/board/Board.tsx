@@ -1,20 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Icon from "../UI/Icon";
-import ToDoList from "../todo/ToDoList";
 import { BoardType } from "@/types/kanban.type";
 import { useBoard } from "@/context/BoardProvider";
 import { useTodo } from "@/context/TodoProvider";
-import AddToDoForm from "../todo/AddToDoForm";
+import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { formatBoardName } from "@/lib/truncateUtils";
+import Icon from "../UI/Icon";
+import ToDoList from "../todo/ToDoList";
+import AddToDoForm from "../todo/AddToDoForm";
 
 interface BoardProps {
   subjectId: string;
   board: BoardType;
+  dragHandleProps: SyntheticListenerMap | undefined;
 }
 
-const Board = ({ subjectId, board }: BoardProps) => {
+const Board = ({ subjectId, board, dragHandleProps }: BoardProps) => {
   const { todos } = useTodo();
   const { deleteBoard, updateBoardTitle } = useBoard();
   const todoCount = todos.filter((todo) => todo.boardId === board.id).length;
@@ -70,7 +72,10 @@ const Board = ({ subjectId, board }: BoardProps) => {
 
   return (
     <section className="w-[20rem] h-full bg-boardBG rounded-md border-border border-[1px] ">
-      <div className="h-[4rem] px-4 text-lg flex flex-row justify-between items-center border-b-[1px] border-[#C0C1CC] border-dashed">
+      <div
+        className="h-[4rem] px-4 text-lg flex flex-row justify-between items-center border-b-[1px] border-[#C0C1CC] border-dashed"
+        {...dragHandleProps}
+      >
         {boardNameEditState.isEditing ? (
           <div className="flex flex-row gap-2">
             <input
