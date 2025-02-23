@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import ToDoItem from "./ToDoItem";
+import { useMemo } from "react";
 import { useTodo } from "@/context/TodoProvider";
-import { ToDoType } from "@/types/kanban.type";
+import ToDoItem from "./ToDoItem";
 
 const ToDoList = ({
   boardId,
@@ -13,17 +12,16 @@ const ToDoList = ({
   isAddingTodo: boolean;
 }) => {
   const { todos, getTodos } = useTodo();
-  const [todoList, setTodoList] = useState<ToDoType[]>([]);
 
-  useEffect(() => {
-    if (!boardId) return;
-    setTodoList(getTodos(boardId));
-  }, [todos]);
+  const todoList = useMemo(() => {
+    if (!boardId) return [];
+    return getTodos(boardId);
+  }, [boardId, todos]);
 
   return (
     <div className="flex flex-col gap-3">
       {todoList.length === 0 && !isAddingTodo ? (
-        <div className="border-[1px] border-border rounded-md shadow-sm text-center text-grayText py-3">
+        <div className="border-[1px] border-border rounded-md text-center text-grayText select-none py-3">
           할 일을 등록해주세요.
         </div>
       ) : (
