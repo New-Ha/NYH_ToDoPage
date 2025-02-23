@@ -30,7 +30,7 @@ const AddBoardForm = ({ subjectId, onCancel }: AddBoardFormPropsType) => {
         <input
           type="text"
           onChange={(e) => setNewBoardName(e.target.value)}
-          className="w-full py-1 px-2 bg-transparent border-b-[1px] border-primary text-[1rem] font-semibold text-primary focus:outline-none"
+          className="w-full py-1 px-2 bg-transparent border-b-[1px] border-primary text-[1.1rem] font-semibold text-primary focus:outline-none placeholder:font-normal"
           placeholder="보드명"
         />
       </div>

@@ -1,28 +1,61 @@
 "use client";
 
-import BoardList from "@/components/board/BoardList";
-import Icon from "@/components/UI/Icon";
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "next/navigation";
 import { useSubject } from "@/context/SubjectProvider";
 import { SubjectType } from "@/types/kanban.type";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import BoardList from "@/components/board/BoardList";
+import Icon from "@/components/UI/Icon";
 
 const SubjectClientPage = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const { id: subjectId } = useParams();
   const { updateSubjectName, deleteSubject } = useSubject();
   const [subject, setSubject] = useState<SubjectType | null>(null);
-  const [isEditName, setIsEditName] = useState(false);
-  const [newName, setNewName] = useState("");
+  const [isEditingMode, setIsEditingMode] = useState(false);
+  const [subjectTitleEditState, setSubjectTitleEditState] = useState({
+    isEditing: false,
+    title: "",
+  });
+  const [isAddingBoard, setIsAddingBoard] = useState(false);
 
-  const handleEditSubjectName = () => {
-    if (!newName.trim()) {
-      setIsEditName(false);
+  const handleStartEditMode = () => {
+    setIsEditingMode(true);
+  };
+
+  const handleStartSubjectTitleEdit = () => {
+    setSubjectTitleEditState({ isEditing: true, title: "" });
+  };
+
+  const handleSubjectTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSubjectTitleEditState((prev) => ({
+      ...prev,
+      title: e.target.value,
+    }));
+  };
+
+  const handleSaveEdit = () => {
+    if (!subjectTitleEditState.title.trim()) {
+      setSubjectTitleEditState({ isEditing: false, title: "" });
       return;
     }
 
-    updateSubjectName(subjectId as string, newName);
-    setNewName("");
-    setIsEditName(false);
+    updateSubjectName(subjectId as string, subjectTitleEditState.title);
+    setSubjectTitleEditState({ isEditing: false, title: "" });
+    setIsEditingMode(false);
+  };
+
+  const handleCancelEdit = () => {
+    setSubjectTitleEditState({ isEditing: false, title: "" });
+    setIsEditingMode(false);
+  };
+
+  const handleStartAddingBoard = () => {
+    setIsAddingBoard(true);
+  };
+
+  const handleCancelAddingBoard = () => {
+    setIsAddingBoard(false);
   };
 
   useEffect(() => {
@@ -44,61 +77,101 @@ const SubjectClientPage = () => {
 
   return (
     <div className="w-full flex flex-col items-center flex-1 min-h-0 px-2">
-      <div className="w-full max-w-[80rem] flex items-center justify-between my-10">
-        <div className="flex flex-row gap-2">
+      <div className="w-full max-w-[80rem] grid grid-cols-[1fr_auto_1fr] items-center justify-between my-10">
+        <div className="flex flex-row gap-2 py-2">
           <button
             type="button"
-            className="py-2 px-2 rounded-full hover:bg-border"
+            className="py-2 px-2 rounded-full hover:bg-border "
           >
-            <Icon type="undo" className="w-5 h-5" />
+            <Icon type="undo" className="w-5 h-5 text-gray-500" />
           </button>
           <button
             type="button"
             className="py-2 px-2 rounded-full hover:bg-border"
           >
-            <Icon type="redo" className="w-5 h-5" />
+            <Icon type="redo" className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-        <h1 className="font-bold text-primary text-xl text-[1.4rem]">
-          {subject.name}
-        </h1>
-        <div className="flex flex-row gap-2">
-          {isEditName ? (
-            <div className="flex flex-row gap-2">
+
+        <h1 className="font-bold text-primary text-xl text-[1.5rem] z-10">
+          {subjectTitleEditState.isEditing ? (
+            <div className="flex flex-row gap-3">
               <input
                 type="text"
-                onChange={(e) => setNewName(e.target.value)}
-                className="border-[1px] border-primary rounded-md text-[0.9rem] px-4 focus:outline-none"
-                placeholder="변경할 주제명"
+                ref={inputRef}
+                value={subjectTitleEditState.title}
+                onChange={(e) => handleSubjectTitleChange(e)}
+                className="w-full border-b-[1px] border-primary text-[1.4rem] px-4 py-1 focus:outline-none"
+                placeholder={`${subject.name}`}
               />
               <button
                 type="button"
-                onClick={handleEditSubjectName}
-                className="px-2 rounded-full hover:bg-border"
+                onClick={handleSaveEdit}
+                className="p-2 rounded-full text-grayText hover:bg-primary hover:text-white"
               >
-                <Icon type="check-circle" className="w-6 h-6" />
+                <Icon type="check" />
               </button>
             </div>
           ) : (
+            <span className="text-[1.5rem]">{subject.name}</span>
+          )}
+        </h1>
+
+        <div className="flex flex-row justify-end">
+          {!isEditingMode && (
             <button
               type="button"
-              onClick={() => setIsEditName(true)}
-              className="py-2 px-2 rounded-full hover:bg-border"
+              onClick={handleStartAddingBoard}
+              className="py-1 px-2 rounded-full text-gray-400 hover:bg-border hover:text-primary"
             >
-              <Icon type="pencil" />
+              <Icon type="plus" />
             </button>
           )}
-          <button
-            type="button"
-            className="py-2 px-2 rounded-full hover:bg-border"
-            onClick={() => deleteSubject(subject.id)}
-          >
-            <Icon type="trash" />
-          </button>
+          {isEditingMode ? (
+            <div>
+              {!subjectTitleEditState.isEditing && (
+                <button
+                  type="button"
+                  onClick={handleStartSubjectTitleEdit}
+                  className="p-2 rounded-full text-gray-400 hover:bg-border hover:text-primary"
+                >
+                  <Icon type="pencil" />
+                </button>
+              )}
+              {!subjectTitleEditState.isEditing && (
+                <button
+                  type="button"
+                  className="p-2 rounded-full text-gray-400 hover:bg-border hover:text-rose-600"
+                  onClick={() => deleteSubject(subject.id)}
+                >
+                  <Icon type="trash" />
+                </button>
+              )}
+              <button
+                type="button"
+                className="p-2 rounded-full text-gray-400 hover:bg-border hover:text-black"
+                onClick={handleCancelEdit}
+              >
+                <Icon type="x" />
+              </button>
+            </div>
+          ) : (
+            <button type="button" onClick={handleStartEditMode}>
+              <Icon
+                type="dots-row"
+                className="w-[2.4rem] h-[2.4rem] py-1 px-2 rounded-full hover:bg-border "
+              />
+            </button>
+          )}
         </div>
       </div>
       <div className="w-full overflow-x-auto flex-1 min-h-0">
-        <BoardList subjectId={subjectId as string} boards={subject.boards} />
+        <BoardList
+          subjectId={subjectId as string}
+          isAddingBoard={isAddingBoard}
+          onClickStartAddingBoard={handleStartAddingBoard}
+          onCancelAddingBoard={handleCancelAddingBoard}
+        />
       </div>
     </div>
   );
