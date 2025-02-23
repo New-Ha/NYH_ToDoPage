@@ -7,7 +7,7 @@ import { BoardType } from "@/types/kanban.type";
 type BoardContextType = {
   boards: BoardType[];
   getBoards: (boardId: string) => BoardType[];
-  addBoard: (subjectId: string, title: string) => BoardType;
+  addBoard: (subjectId: string, title: string) => BoardType | null;
   deleteBoard: (subjectId: string, boardId: string) => void;
   updateBoardTitle: (boardId: string, newTitle: string) => void;
 };

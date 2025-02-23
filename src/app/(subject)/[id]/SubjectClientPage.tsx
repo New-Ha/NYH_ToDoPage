@@ -191,6 +191,7 @@ const SubjectClientPage = () => {
         <div className="w-full overflow-x-auto flex-1 min-h-0">
           <BoardList
             subjectId={subjectId as string}
+            boards={subject.boards}
             isAddingBoard={isAddingBoard}
             onClickStartAddingBoard={handleStartAddingBoard}
             onCancelAddingBoard={handleCancelAddingBoard}

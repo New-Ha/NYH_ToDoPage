@@ -2,12 +2,19 @@
 
 import { useBoard } from "@/context/BoardProvider";
 import { TodoProvider } from "@/context/TodoProvider";
-import Board from "./Board";
 import Icon from "../UI/Icon";
 import AddBoardForm from "./AddBoardForm";
+import {
+  horizontalListSortingStrategy,
+  SortableContext,
+} from "@dnd-kit/sortable";
+import BoardItem from "./BoardItem";
+import { useEffect, useState } from "react";
+import { BoardType } from "@/types/kanban.type";
 
 interface BoardListProps {
   subjectId: string;
+  boards: string[];
   isAddingBoard: boolean;
   onClickStartAddingBoard: () => void;
   onCancelAddingBoard: () => void;
@@ -15,20 +22,31 @@ interface BoardListProps {
 
 const BoardList = ({
   subjectId,
+  boards,
   isAddingBoard,
   onClickStartAddingBoard,
   onCancelAddingBoard,
 }: BoardListProps) => {
-  const { boards: boardList } = useBoard();
+  const { getBoards } = useBoard();
+  const [boardList, setBoardList] = useState<BoardType[]>([]);
+
+  useEffect(() => {
+    setBoardList(getBoards(subjectId));
+  }, [boards]);
 
   return (
     <div className="w-max flex flex-row items-start gap-6">
       <div className="flex gap-6 w-max">
-        <TodoProvider>
-          {boardList.map((board) => (
-            <Board key={board.id} subjectId={subjectId} board={board} />
-          ))}
-        </TodoProvider>
+        <SortableContext
+          items={boardList.map((board) => board.id)}
+          strategy={horizontalListSortingStrategy}
+        >
+          <TodoProvider>
+            {boardList.map((board) => (
+              <BoardItem key={board.id} subjectId={subjectId} board={board} />
+            ))}
+          </TodoProvider>
+        </SortableContext>
       </div>
       {isAddingBoard && (
         <AddBoardForm subjectId={subjectId} onCancel={onCancelAddingBoard} />
