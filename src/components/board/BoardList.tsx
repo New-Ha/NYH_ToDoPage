@@ -5,6 +5,7 @@ import Board from "./Board";
 import Icon from "../UI/Icon";
 import AddBoardForm from "./AddBoardForm";
 import { useBoard } from "@/context/BoardProvider";
+import { TodoProvider } from "@/context/TodoProvider";
 
 type BoardListPropsType = {
   subjectId: string;
@@ -18,9 +19,11 @@ const BoardList = ({ subjectId }: BoardListPropsType) => {
   return (
     <div className="w-max flex flex-row items-start gap-6">
       <div className="flex gap-6 w-max">
-        {boardList.map((board) => (
-          <Board key={board.id} subjectId={subjectId} board={board} />
-        ))}
+        <TodoProvider>
+          {boardList.map((board) => (
+            <Board key={board.id} subjectId={subjectId} board={board} />
+          ))}
+        </TodoProvider>
       </div>
       {isAddingBoard ? (
         <AddBoardForm

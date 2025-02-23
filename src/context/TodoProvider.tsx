@@ -30,13 +30,12 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    const allBoards = JSON.parse(localStorage.getItem("boards") || "[]");
-    let allTodos: ToDoType[] = [];
-
-    allBoards.forEach((boardId: string) => {
-      allTodos = [...allTodos, ...getTodos(boardId)];
-    });
-
+    const todoKeys = Object.keys(localStorage).filter((key) =>
+      key.startsWith("todo_")
+    );
+    const allTodos = todoKeys.map((key) =>
+      JSON.parse(localStorage.getItem(key)!)
+    );
     setTodos(allTodos);
   }, []);
 
