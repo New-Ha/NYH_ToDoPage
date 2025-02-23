@@ -1,7 +1,7 @@
 export type IconType =
   | "calender"
   | "clock"
-  | "check-circle"
+  | "check"
   | "dots-column"
   | "dots-row"
   | "down"
@@ -11,4 +11,5 @@ export type IconType =
   | "search"
   | "trash"
   | "undo"
-  | "redo";
+  | "redo"
+  | "x";

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Icon from "../UI/Icon";
 import { formatDate } from "@/lib/dateUtils";
 import { IconType } from "@/types/icon.type";
@@ -6,73 +6,117 @@ import { ToDoType } from "@/types/kanban.type";
 import { useTodo } from "@/context/TodoProvider";
 
 const ToDoItem = ({ todo }: { todo: ToDoType }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const { createdAt, iconType } = formatDate(todo.createdAt);
   const { deleteTodo, updateTodo } = useTodo();
-  const [isEditToDoContent, setIsEditToDoContent] = useState(false);
-  const [isEditToDo, setIsEditToDo] = useState(false);
-  const [newContent, setNewContent] = useState("");
 
-  const handleEditTodoContent = () => {
-    if (!newContent.trim()) {
-      setIsEditToDoContent(false);
-      setIsEditToDo(false);
+  const [isEditingMode, setIsEditingMode] = useState(false);
+  const [contentEditState, setContentEditState] = useState({
+    isEditing: false,
+    content: "",
+  });
+
+  const handleStartEditMode = () => {
+    setIsEditingMode(true);
+  };
+
+  const handleStartContentEdit = () => {
+    setContentEditState({ isEditing: true, content: todo.content });
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setContentEditState((prev) => ({
+      ...prev,
+      content: e.target.value,
+    }));
+  };
+
+  const handleSaveEdit = () => {
+    if (!contentEditState.content.trim()) {
+      setContentEditState({ isEditing: false, content: "" });
       return;
     }
+
+    const newContent = contentEditState.content.trim()
+      ? contentEditState.content
+      : todo.content;
+
     updateTodo(todo.id, newContent);
-    setIsEditToDoContent(false);
-    setIsEditToDo(false);
+    setContentEditState({ isEditing: false, content: "" });
+    setIsEditingMode(false);
   };
+
+  const handleCancelEdit = () => {
+    setContentEditState({ isEditing: false, content: "" });
+    setIsEditingMode(false);
+  };
+
+  useEffect(() => {
+    if (contentEditState.isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [contentEditState.isEditing]);
 
   return (
     <div className="bg-white rounded-md shadow-lg p-4">
-      {isEditToDoContent ? (
+      {contentEditState.isEditing ? (
         <input
           type="text"
-          value={newContent}
-          onChange={(e) => setNewContent(e.target.value)}
+          ref={inputRef}
+          value={contentEditState.content}
+          onChange={(e) => handleContentChange(e)}
           maxLength={50}
-          className="mb-4 pt-1 text-[1rem] w-full focus:outline-none"
+          className="mb-2 pt-1 text-[1rem] w-full focus:outline-none"
           placeholder={`${todo.content}`}
         />
       ) : (
         <div className="text-[1rem] font-medium pt-1 mb-4">{todo.content}</div>
       )}
       <div className="flex flex-row justify-between items-center mt-2">
-        <p className="flex flex-row gap-2">
-          <Icon type={iconType as IconType} className="w-5 h-5" />
-          <span className="text-[0.9rem] text-grayText">{createdAt}</span>
+        <p className="flex flex-row items-center gap-1">
+          <Icon type={iconType as IconType} className="text-gray-500" />
+          <span className="text-[0.9rem] text-gray-400">{createdAt}</span>
         </p>
-        {isEditToDo ? (
-          <div>
-            {isEditToDoContent ? (
+        {isEditingMode ? (
+          <div className="flex flex-row gap-1">
+            {contentEditState.isEditing ? (
               <button
                 type="button"
-                onClick={handleEditTodoContent}
-                className="px-2 py-2 rounded-full hover:bg-border"
+                onClick={handleSaveEdit}
+                className="p-1 rounded-full hover:bg-primary hover:text-white"
               >
-                <Icon type="check-circle" />
+                <Icon type="check" />
               </button>
             ) : (
               <button
                 type="button"
-                onClick={() => setIsEditToDoContent(true)}
-                className="py-2 px-2 rounded-full hover:bg-border"
+                onClick={handleStartContentEdit}
+                className="p-1 rounded-md hover:bg-border"
               >
                 <Icon type="pencil" />
               </button>
             )}
+            {!contentEditState.isEditing && (
+              <button
+                type="button"
+                className="p-1 rounded-md hover:bg-border hover:text-rose-600"
+                onClick={() => deleteTodo(todo.boardId, todo.id)}
+              >
+                <Icon type="trash" />
+              </button>
+            )}
             <button
               type="button"
-              className="py-2 px-2 rounded-full hover:bg-border"
-              onClick={() => deleteTodo(todo.boardId, todo.id)}
+              className="p-1 rounded-md hover:bg-border"
+              onClick={handleCancelEdit}
             >
-              <Icon type="trash" />
+              <Icon type="x" className="w-5 h-5" />
             </button>
           </div>
         ) : (
           <button
             type="button"
-            onClick={() => setIsEditToDo(true)}
+            onClick={handleStartEditMode}
             className="py-1 px-1 rounded-md hover:bg-border"
           >
             <Icon type="dots-row" className="w-5 h-5" />
