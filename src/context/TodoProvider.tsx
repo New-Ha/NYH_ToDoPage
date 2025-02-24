@@ -9,6 +9,7 @@ type TodoContextType = {
   addTodo: (boardId: string, content: string) => void;
   deleteTodo: (boardId: string, todoId: string) => void;
   updateTodo: (todoId: string, newContent: string) => void;
+  reorderTodos: (boardId: string, newOrder: ToDoType[]) => void;
 };
 
 const TodoContext = createContext<TodoContextType | null>(null);
@@ -93,9 +94,22 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
+  const reorderTodos = (boardId: string, newOrder: ToDoType[]) => {
+    const boardData = JSON.parse(
+      localStorage.getItem(`board_${boardId}`) || "null"
+    );
+
+    if (boardData) {
+      boardData.todos = newOrder.map((todo) => todo.id);
+      localStorage.setItem(`board_${boardId}`, JSON.stringify(boardData));
+    }
+    const otherTodos = todos.filter((todo) => todo.boardId !== boardId);
+    setTodos([...otherTodos, ...newOrder]);
+  };
+
   return (
     <TodoContext.Provider
-      value={{ todos, getTodos, addTodo, deleteTodo, updateTodo }}
+      value={{ todos, getTodos, addTodo, deleteTodo, updateTodo, reorderTodos }}
     >
       {children}
     </TodoContext.Provider>

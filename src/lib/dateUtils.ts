@@ -26,6 +26,6 @@ export const formatDate = (date: Date | string) => {
 
   return {
     createdAt: `${year}/${month}/${day}`,
-    iconType: "calendar",
+    iconType: "calender",
   };
 };

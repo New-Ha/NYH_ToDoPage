@@ -17,7 +17,7 @@ const ToDoList = ({
   boardId: string;
   isAddingTodo: boolean;
 }) => {
-  const { todos, getTodos } = useTodo();
+  const { todos, getTodos, reorderTodos } = useTodo();
 
   const todoList = useMemo(() => {
     if (!boardId) return [];
@@ -40,6 +40,7 @@ const ToDoList = ({
       boardData.todos = newTodoList.map((todo) => todo.id);
       localStorage.setItem(`board_${boardId}`, JSON.stringify(boardData));
     }
+    reorderTodos(boardId, newTodoList);
   };
 
   return (
