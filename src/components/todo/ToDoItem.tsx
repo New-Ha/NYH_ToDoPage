@@ -1,14 +1,23 @@
 import { useEffect, useRef, useState } from "react";
-import Icon from "../UI/Icon";
+import { useTodo } from "@/context/TodoProvider";
 import { formatDate } from "@/lib/dateUtils";
 import { IconType } from "@/types/icon.type";
 import { ToDoType } from "@/types/kanban.type";
-import { useTodo } from "@/context/TodoProvider";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import Icon from "../UI/Icon";
 
 const ToDoItem = ({ todo }: { todo: ToDoType }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { createdAt, iconType } = formatDate(todo.createdAt);
   const { deleteTodo, updateTodo } = useTodo();
+
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: todo.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   const [isEditingMode, setIsEditingMode] = useState(false);
   const [contentEditState, setContentEditState] = useState({
@@ -58,70 +67,74 @@ const ToDoItem = ({ todo }: { todo: ToDoType }) => {
   }, [contentEditState.isEditing]);
 
   return (
-    <div className="bg-white rounded-md shadow-lg p-4">
-      {contentEditState.isEditing ? (
-        <input
-          type="text"
-          ref={inputRef}
-          value={contentEditState.content}
-          onChange={(e) => handleContentChange(e)}
-          maxLength={50}
-          className="mb-2 pt-1 text-[1rem] w-full focus:outline-none"
-          placeholder={`${todo.content}`}
-        />
-      ) : (
-        <div className="text-[1rem] font-medium pt-1 mb-4">{todo.content}</div>
-      )}
-      <div className="flex flex-row justify-between items-center mt-2">
-        <p className="flex flex-row items-center gap-1">
-          <Icon type={iconType as IconType} className="text-gray-500" />
-          <span className="text-[0.9rem] text-gray-400">{createdAt}</span>
-        </p>
-        {isEditingMode ? (
-          <div className="flex flex-row gap-1">
-            {contentEditState.isEditing ? (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div className="bg-white rounded-md shadow-lg p-4">
+        {contentEditState.isEditing ? (
+          <input
+            type="text"
+            ref={inputRef}
+            value={contentEditState.content}
+            onChange={(e) => handleContentChange(e)}
+            maxLength={50}
+            className="mb-2 pt-1 text-[1rem] w-full focus:outline-none"
+            placeholder={`${todo.content}`}
+          />
+        ) : (
+          <div className="text-[1rem] font-medium pt-1 mb-4">
+            {todo.content}
+          </div>
+        )}
+        <div className="flex flex-row justify-between items-center mt-2">
+          <p className="flex flex-row items-center gap-1">
+            <Icon type={iconType as IconType} className="text-gray-500" />
+            <span className="text-[0.9rem] text-gray-400">{createdAt}</span>
+          </p>
+          {isEditingMode ? (
+            <div className="flex flex-row gap-1">
+              {contentEditState.isEditing ? (
+                <button
+                  type="button"
+                  onClick={handleSaveEdit}
+                  className="p-1 rounded-md text-grayText hover:bg-primary hover:text-white"
+                >
+                  <Icon type="check" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleStartContentEdit}
+                  className="p-1 rounded-md text-grayText hover:bg-border hover:text-primary"
+                >
+                  <Icon type="pencil" />
+                </button>
+              )}
+              {!contentEditState.isEditing && (
+                <button
+                  type="button"
+                  className="p-1 rounded-md text-grayText hover:bg-border hover:text-rose-600"
+                  onClick={() => deleteTodo(todo.boardId, todo.id)}
+                >
+                  <Icon type="trash" />
+                </button>
+              )}
               <button
                 type="button"
-                onClick={handleSaveEdit}
-                className="p-1 rounded-md text-grayText hover:bg-primary hover:text-white"
+                className="p-1 rounded-md text-grayText hover:bg-border hover:text-black"
+                onClick={handleCancelEdit}
               >
-                <Icon type="check" />
+                <Icon type="x" className="w-5 h-5" />
               </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleStartContentEdit}
-                className="p-1 rounded-md text-grayText hover:bg-border hover:text-primary"
-              >
-                <Icon type="pencil" />
-              </button>
-            )}
-            {!contentEditState.isEditing && (
-              <button
-                type="button"
-                className="p-1 rounded-md text-grayText hover:bg-border hover:text-rose-600"
-                onClick={() => deleteTodo(todo.boardId, todo.id)}
-              >
-                <Icon type="trash" />
-              </button>
-            )}
+            </div>
+          ) : (
             <button
               type="button"
-              className="p-1 rounded-md text-grayText hover:bg-border hover:text-black"
-              onClick={handleCancelEdit}
+              onClick={handleStartEditMode}
+              className="py-1 px-1 rounded-md text-gray-500 hover:bg-border hover:text-black"
             >
-              <Icon type="x" className="w-5 h-5" />
+              <Icon type="dots-row" className="w-5 h-5" />
             </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={handleStartEditMode}
-            className="py-1 px-1 rounded-md text-gray-500 hover:bg-border hover:text-black"
-          >
-            <Icon type="dots-row" className="w-5 h-5" />
-          </button>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
