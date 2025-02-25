@@ -6,13 +6,13 @@ import { useSubject } from "@/contexts/SubjectContext";
 
 const HomePage = () => {
   const router = useRouter();
-  const { subjectNames } = useSubject();
+  const { subjects } = useSubject();
 
   useEffect(() => {
-    if (subjectNames.length > 0) {
-      router.push(`/${subjectNames[0].id}`);
+    if (subjects.length > 0) {
+      router.push(`/${subjects[0].id}`);
     }
-  }, [subjectNames, router]);
+  }, [subjects, router]);
 
   return (
     <div className="mx-auto mt-20 bg-boardBG py-5 px-10 rounded-md text-[1rem] text-grayText">

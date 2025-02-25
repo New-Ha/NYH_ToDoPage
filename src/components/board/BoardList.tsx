@@ -1,21 +1,18 @@
 "use client";
 
 import { useBoard } from "@/contexts/BoardContext";
-import { TodoProvider } from "@/contexts/TodoContext";
 import Icon from "../UI/Icon";
 import AddBoardForm from "./AddBoardForm";
 import {
   horizontalListSortingStrategy,
   SortableContext,
 } from "@dnd-kit/sortable";
-import BoardItem from "./BoardItem";
 import { useEffect, useState } from "react";
 import { BoardType } from "@/types/kanban.type";
 import Board from "./Board";
 
 interface BoardListProps {
   subjectId: string;
-  boards: string[];
   isAddingBoard: boolean;
   onClickStartAddingBoard: () => void;
   onCancelAddingBoard: () => void;
@@ -41,11 +38,9 @@ const BoardList = ({
           items={boardList.map((board) => board.id)}
           strategy={horizontalListSortingStrategy}
         >
-          <TodoProvider>
-            {boardList.map((board) => (
-              <Board key={board.id} subjectId={subjectId} board={board} />
-            ))}
-          </TodoProvider>
+          {boardList.map((board) => (
+            <Board key={board.id} subjectId={subjectId} board={board} />
+          ))}
         </SortableContext>
       </div>
       {isAddingBoard && (

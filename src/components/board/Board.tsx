@@ -102,7 +102,7 @@ const Board = ({ subjectId, board }: BoardProps) => {
             </p>
           )}
           {isEditingMode ? (
-            <div>
+            <div className="flex flex-nowrap">
               {boardNameEditState.isEditing ? (
                 <button
                   type="button"
