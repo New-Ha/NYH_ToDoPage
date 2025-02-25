@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useTodo } from "@/context/TodoProvider";
+import { useTodo } from "@/contexts/TodoContext";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -55,7 +55,9 @@ const ToDoList = ({
               할 일을 등록해주세요.
             </div>
           ) : (
-            todoList.map((todo) => <ToDoItem key={todo.id} todo={todo} />)
+            todoList.map((todo) => (
+              <ToDoItem key={todo.id} boardId={boardId} todo={todo} />
+            ))
           )}
         </div>
       </SortableContext>

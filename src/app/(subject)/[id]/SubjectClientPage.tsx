@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { useSubject } from "@/context/SubjectProvider";
+import { useSubject } from "@/contexts/SubjectContext";
 import { SubjectType } from "@/types/kanban.type";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
@@ -12,7 +12,7 @@ import Icon from "@/components/UI/Icon";
 const SubjectClientPage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { id: subjectId } = useParams();
-  const { updateSubjectName, deleteSubject } = useSubject();
+  const { updateSubjectTitle, deleteSubject } = useSubject();
 
   const [subject, setSubject] = useState<SubjectType | null>(null);
   const [isEditingMode, setIsEditingMode] = useState(false);
@@ -43,7 +43,7 @@ const SubjectClientPage = () => {
       return;
     }
 
-    updateSubjectName(subjectId as string, subjectTitleEditState.title);
+    updateSubjectTitle(subjectId as string, subjectTitleEditState.title);
     setSubjectTitleEditState({ isEditing: false, title: "" });
     setIsEditingMode(false);
   };
@@ -85,7 +85,7 @@ const SubjectClientPage = () => {
   useEffect(() => {
     if (subjectId) {
       const storedSubject = JSON.parse(
-        localStorage.getItem(`subject_${subjectId}`) || "null"
+        localStorage.getItem(`subject_${subjectId as string}`) || "null"
       );
       setSubject(storedSubject);
     }
@@ -94,7 +94,7 @@ const SubjectClientPage = () => {
   if (!subject) {
     return (
       <div className="text-center mt-10 text-lg font-semibold">
-        주제를 찾을 수 없습니다.
+        아직 아무런 주제가 없습니다. 새로운 주제를 추가해주세요.
       </div>
     );
   }
@@ -125,7 +125,7 @@ const SubjectClientPage = () => {
                 value={subjectTitleEditState.title}
                 onChange={(e) => handleSubjectTitleChange(e)}
                 className="w-full border-b-[1px] border-primary text-[1.4rem] px-4 py-1 focus:outline-none"
-                placeholder={`${subject.name}`}
+                placeholder={`${subject.title}`}
               />
               <button
                 type="button"
@@ -136,7 +136,7 @@ const SubjectClientPage = () => {
               </button>
             </div>
           ) : (
-            <span className="text-[1.5rem]">{subject.name}</span>
+            <span className="text-[1.5rem]">{subject.title}</span>
           )}
         </h1>
         <div className="flex flex-row justify-end">
@@ -191,7 +191,6 @@ const SubjectClientPage = () => {
         <div className="w-full overflow-x-auto flex-1 min-h-0">
           <BoardList
             subjectId={subjectId as string}
-            boards={subject.boards}
             isAddingBoard={isAddingBoard}
             onClickStartAddingBoard={handleStartAddingBoard}
             onCancelAddingBoard={handleCancelAddingBoard}

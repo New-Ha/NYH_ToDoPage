@@ -1,4 +1,4 @@
-import { BoardProvider } from "@/context/BoardProvider";
+import { BoardProvider } from "@/contexts/BoardContext";
 import React from "react";
 import SubjectClientPage from "./SubjectClientPage";
 

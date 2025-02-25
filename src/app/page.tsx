@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSubject } from "@/context/SubjectProvider";
+import { useSubject } from "@/contexts/SubjectContext";
 
 const HomePage = () => {
   const router = useRouter();

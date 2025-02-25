@@ -1,7 +1,7 @@
 "use client";
 
-import { useBoard } from "@/context/BoardProvider";
-import { TodoProvider } from "@/context/TodoProvider";
+import { useBoard } from "@/contexts/BoardContext";
+import { TodoProvider } from "@/contexts/TodoContext";
 import Icon from "../UI/Icon";
 import AddBoardForm from "./AddBoardForm";
 import {
@@ -11,6 +11,7 @@ import {
 import BoardItem from "./BoardItem";
 import { useEffect, useState } from "react";
 import { BoardType } from "@/types/kanban.type";
+import Board from "./Board";
 
 interface BoardListProps {
   subjectId: string;
@@ -22,12 +23,11 @@ interface BoardListProps {
 
 const BoardList = ({
   subjectId,
-  boards,
   isAddingBoard,
   onClickStartAddingBoard,
   onCancelAddingBoard,
 }: BoardListProps) => {
-  const { getBoards } = useBoard();
+  const { boards, getBoards } = useBoard();
   const [boardList, setBoardList] = useState<BoardType[]>([]);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const BoardList = ({
         >
           <TodoProvider>
             {boardList.map((board) => (
-              <BoardItem key={board.id} subjectId={subjectId} board={board} />
+              <Board key={board.id} subjectId={subjectId} board={board} />
             ))}
           </TodoProvider>
         </SortableContext>
