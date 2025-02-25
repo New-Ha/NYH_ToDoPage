@@ -16,7 +16,7 @@ const ToDoItem = ({
 }: {
   boardId: string;
   todo: ToDoType;
-  isDragging: boolean;
+  isDragging?: boolean;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { createdAt, iconType } = formatDate(todo.createdAt);
@@ -91,6 +91,8 @@ const ToDoItem = ({
           ref={inputRef}
           value={contentEditState.content}
           onChange={handleContentChange}
+          onPointerDown={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
           maxLength={50}
           className="mb-2 pt-1 text-base w-full focus:outline-none"
           placeholder={todo.content}

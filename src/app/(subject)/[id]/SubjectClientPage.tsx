@@ -11,7 +11,6 @@ import {
   DragStartEvent,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { useBoard } from "@/contexts/BoardContext";
 import { useTodo } from "@/contexts/TodoContext";
 import BoardList from "@/components/board/BoardList";
 import ToDoItem from "@/components/todo/ToDoItem";
@@ -21,7 +20,6 @@ const SubjectClientPage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { id: subjectId } = useParams();
   const { updateSubjectTitle, deleteSubject } = useSubject();
-  const { reorderBoards } = useBoard();
   const { getTodos, moveTodo, reorderTodos } = useTodo();
 
   const [subject, setSubject] = useState<SubjectType | null>(null);
@@ -92,10 +90,17 @@ const SubjectClientPage = () => {
     if (activeType === "todo") {
       const sourceBoardId = active.data.current?.boardId;
       let targetBoardId: string | undefined;
+      let targetIndex = -1;
 
       if (typeof over.id === "string") {
         if (over.id.startsWith("todoContainer-")) {
           targetBoardId = over.id.replace("todoContainer-", "");
+        } else if (over.data.current?.type === "todo") {
+          targetBoardId = over.data.current.boardId;
+          const targetTodos = getTodos(targetBoardId as string);
+
+          targetIndex = targetTodos.findIndex((todo) => todo.id === over.id);
+          if (targetIndex === -1) targetIndex = targetTodos.length;
         } else if (over.data.current?.type === "board") {
           targetBoardId = over.data.current.boardId;
         }
@@ -108,21 +113,17 @@ const SubjectClientPage = () => {
         const activeIndex = currentTodos.findIndex(
           (todo) => todo.id === active.id
         );
-        const overIndex = currentTodos.findIndex((todo) => todo.id === over.id);
-        if (activeIndex === -1 || overIndex === -1) return;
-        const newTodosOrder = arrayMove(currentTodos, activeIndex, overIndex);
+        if (activeIndex === -1 || targetIndex === -1) return;
+        const newTodosOrder = arrayMove(currentTodos, activeIndex, targetIndex);
         reorderTodos(sourceBoardId, newTodosOrder);
       } else {
-        moveTodo(sourceBoardId, targetBoardId, active.id as string, -1);
+        moveTodo(
+          sourceBoardId,
+          targetBoardId,
+          active.id as string,
+          targetIndex
+        );
       }
-    } else {
-      if (active.id === over.id) return;
-      if (!subject || !subject.boards) return;
-      const oldIndex = subject.boards.indexOf(String(active.id));
-      const newIndex = subject.boards.indexOf(String(over.id));
-      if (oldIndex === -1 || newIndex === -1) return;
-      const newBoardsOrder = arrayMove(subject.boards, oldIndex, newIndex);
-      reorderBoards(newBoardsOrder);
     }
   };
 
