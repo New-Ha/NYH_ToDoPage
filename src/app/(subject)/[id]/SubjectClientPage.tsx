@@ -2,15 +2,28 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { useSubject } from "@/context/SubjectProvider";
+import { useSubject } from "@/contexts/SubjectContext";
 import { SubjectType } from "@/types/kanban.type";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+} from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
+import { useBoard } from "@/contexts/BoardContext";
+import { useTodo } from "@/contexts/TodoContext";
 import BoardList from "@/components/board/BoardList";
+import ToDoItem from "@/components/todo/ToDoItem";
 import Icon from "@/components/UI/Icon";
 
 const SubjectClientPage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { id: subjectId } = useParams();
-  const { updateSubjectName, deleteSubject } = useSubject();
+  const { updateSubjectTitle, deleteSubject } = useSubject();
+  const { reorderBoards } = useBoard();
+  const { getTodos, moveTodo, reorderTodos } = useTodo();
+
   const [subject, setSubject] = useState<SubjectType | null>(null);
   const [isEditingMode, setIsEditingMode] = useState(false);
   const [subjectTitleEditState, setSubjectTitleEditState] = useState({
@@ -18,6 +31,7 @@ const SubjectClientPage = () => {
     title: "",
   });
   const [isAddingBoard, setIsAddingBoard] = useState(false);
+  const [activeTodo, setActiveTodo] = useState(null);
 
   const handleStartEditMode = () => {
     setIsEditingMode(true);
@@ -40,7 +54,7 @@ const SubjectClientPage = () => {
       return;
     }
 
-    updateSubjectName(subjectId as string, subjectTitleEditState.title);
+    updateSubjectTitle(subjectId as string, subjectTitleEditState.title);
     setSubjectTitleEditState({ isEditing: false, title: "" });
     setIsEditingMode(false);
   };
@@ -58,10 +72,64 @@ const SubjectClientPage = () => {
     setIsAddingBoard(false);
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    if (active.data.current?.type === "todo") {
+      setActiveTodo({
+        ...active.data.current.todo,
+        boardId: active.data.current.boardId,
+      });
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveTodo(null);
+    if (!over) return;
+
+    const activeType = active.data.current?.type;
+
+    if (activeType === "todo") {
+      const sourceBoardId = active.data.current?.boardId;
+      let targetBoardId: string | undefined;
+
+      if (typeof over.id === "string") {
+        if (over.id.startsWith("todoContainer-")) {
+          targetBoardId = over.id.replace("todoContainer-", "");
+        } else if (over.data.current?.type === "board") {
+          targetBoardId = over.data.current.boardId;
+        }
+      }
+
+      if (!targetBoardId) return;
+
+      if (sourceBoardId === targetBoardId) {
+        const currentTodos = getTodos(sourceBoardId);
+        const activeIndex = currentTodos.findIndex(
+          (todo) => todo.id === active.id
+        );
+        const overIndex = currentTodos.findIndex((todo) => todo.id === over.id);
+        if (activeIndex === -1 || overIndex === -1) return;
+        const newTodosOrder = arrayMove(currentTodos, activeIndex, overIndex);
+        reorderTodos(sourceBoardId, newTodosOrder);
+      } else {
+        moveTodo(sourceBoardId, targetBoardId, active.id as string, -1);
+      }
+    } else {
+      if (active.id === over.id) return;
+      if (!subject || !subject.boards) return;
+      const oldIndex = subject.boards.indexOf(String(active.id));
+      const newIndex = subject.boards.indexOf(String(over.id));
+      if (oldIndex === -1 || newIndex === -1) return;
+      const newBoardsOrder = arrayMove(subject.boards, oldIndex, newIndex);
+      reorderBoards(newBoardsOrder);
+    }
+  };
+
   useEffect(() => {
     if (subjectId) {
       const storedSubject = JSON.parse(
-        localStorage.getItem(`subject_${subjectId}`) || "null"
+        localStorage.getItem(`subject_${subjectId as string}`) || "null"
       );
       setSubject(storedSubject);
     }
@@ -70,7 +138,7 @@ const SubjectClientPage = () => {
   if (!subject) {
     return (
       <div className="text-center mt-10 text-lg font-semibold">
-        주제를 찾을 수 없습니다.
+        아직 아무런 주제가 없습니다. 새로운 주제를 추가해주세요.
       </div>
     );
   }
@@ -92,7 +160,6 @@ const SubjectClientPage = () => {
             <Icon type="redo" className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-
         <h1 className="font-bold text-primary text-xl text-[1.5rem] z-10">
           {subjectTitleEditState.isEditing ? (
             <div className="flex flex-row gap-3">
@@ -102,7 +169,7 @@ const SubjectClientPage = () => {
                 value={subjectTitleEditState.title}
                 onChange={(e) => handleSubjectTitleChange(e)}
                 className="w-full border-b-[1px] border-primary text-[1.4rem] px-4 py-1 focus:outline-none"
-                placeholder={`${subject.name}`}
+                placeholder={`${subject.title}`}
               />
               <button
                 type="button"
@@ -113,10 +180,9 @@ const SubjectClientPage = () => {
               </button>
             </div>
           ) : (
-            <span className="text-[1.5rem]">{subject.name}</span>
+            <span className="text-[1.5rem]">{subject.title}</span>
           )}
         </h1>
-
         <div className="flex flex-row justify-end">
           {!isEditingMode && (
             <button
@@ -165,14 +231,25 @@ const SubjectClientPage = () => {
           )}
         </div>
       </div>
-      <div className="w-full overflow-x-auto flex-1 min-h-0">
-        <BoardList
-          subjectId={subjectId as string}
-          isAddingBoard={isAddingBoard}
-          onClickStartAddingBoard={handleStartAddingBoard}
-          onCancelAddingBoard={handleCancelAddingBoard}
-        />
-      </div>
+      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <div className="w-full overflow-x-auto flex-1 min-h-0">
+          <BoardList
+            subjectId={subjectId as string}
+            isAddingBoard={isAddingBoard}
+            onClickStartAddingBoard={handleStartAddingBoard}
+            onCancelAddingBoard={handleCancelAddingBoard}
+          />
+          <DragOverlay>
+            {activeTodo ? (
+              <ToDoItem
+                todo={activeTodo}
+                boardId={activeTodo.boardId}
+                isDragging
+              />
+            ) : null}
+          </DragOverlay>
+        </div>
+      </DndContext>
     </div>
   );
 };

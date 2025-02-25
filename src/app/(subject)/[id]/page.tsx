@@ -1,11 +1,14 @@
-import { BoardProvider } from "@/context/BoardProvider";
+import { BoardProvider } from "@/contexts/BoardContext";
 import React from "react";
 import SubjectClientPage from "./SubjectClientPage";
+import { TodoProvider } from "@/contexts/TodoContext";
 
 const SubjectPage = () => {
   return (
     <BoardProvider>
-      <SubjectClientPage />
+      <TodoProvider>
+        <SubjectClientPage />
+      </TodoProvider>
     </BoardProvider>
   );
 };

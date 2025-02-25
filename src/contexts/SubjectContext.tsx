@@ -9,16 +9,11 @@ import {
 import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type SubjectNameType = {
-  id: string;
-  name: string;
-};
-
 type SubjectContextType = {
-  subjectNames: SubjectNameType[];
-  addSubject: (name: string) => void;
+  subjects: SubjectsType;
+  addSubject: (title: string) => string | null;
   deleteSubject: (subjectId: string) => void;
-  updateSubjectName: (subjectId: string, newName: string) => void;
+  updateSubjectTitle: (subjectId: string, newTitle: string) => void;
 };
 
 const SubjectContext = createContext<SubjectContextType | null>(null);
@@ -30,49 +25,42 @@ export const SubjectProvider = ({
 }) => {
   const router = useRouter();
   const [subjects, setSubjects] = useState<SubjectsType>([]);
-  const [subjectNames, setSubjectNames] = useState<SubjectNameType[]>([]);
 
   useEffect(() => {
     const storedSubjects = JSON.parse(localStorage.getItem("subjects") || "[]");
     setSubjects(storedSubjects);
   }, []);
 
-  useEffect(() => {
-    const updatedSubjectNames = subjects
-      .map((id) => JSON.parse(localStorage.getItem(`subject_${id}`) || "null"))
-      .filter(Boolean)
-      .map((subject) => ({ id: subject.id, name: subject.name }));
+  const addSubject = (title: string): string | null => {
+    if (subjects.length >= 5) {
+      alert("최대 5개의 주제만 추가할 수 있습니다. 기존 주제를 정리해주세요.");
+      return null;
+    }
 
-    setSubjectNames(updatedSubjectNames);
-  }, [subjects]);
-
-  const addSubject = (name: string): string => {
+    // 새로운 subject 기본 값
     const subjectId = crypto.randomUUID();
     const defaultBoardId = crypto.randomUUID();
-    const defaultToDoId = crypto.randomUUID();
     const newTodo: ToDoType = {
-      id: defaultToDoId,
-      boardId: defaultBoardId,
+      id: crypto.randomUUID(),
       content: "할 일을 정리해보세요!",
       createdAt: new Date(),
     };
     const newBoard: BoardType = {
       id: defaultBoardId,
-      title: "할 일",
-      todos: [defaultToDoId],
+      name: "할 일",
+      todos: [newTodo],
     };
     const newSubject: SubjectType = {
       id: subjectId,
-      name,
+      title,
       boards: [defaultBoardId],
     };
 
-    const updatedSubjects = [...subjects, subjectId];
+    const updatedSubjects = [...subjects, { id: subjectId, title }];
 
     localStorage.setItem("subjects", JSON.stringify(updatedSubjects));
     localStorage.setItem(`subject_${subjectId}`, JSON.stringify(newSubject));
     localStorage.setItem(`board_${defaultBoardId}`, JSON.stringify(newBoard));
-    localStorage.setItem(`todo_${defaultToDoId}`, JSON.stringify(newTodo));
 
     setSubjects(updatedSubjects);
     return subjectId;
@@ -88,46 +76,43 @@ export const SubjectProvider = ({
       const board = JSON.parse(
         localStorage.getItem(`board_${boardId}`) || "null"
       );
-      if (board) {
-        board.todos.forEach((todoId: string) => {
-          localStorage.removeItem(`todo_${todoId}`);
-        });
-      }
-      localStorage.removeItem(`board_${boardId}`);
+      if (board) localStorage.removeItem(`board_${boardId}`);
     });
 
     localStorage.removeItem(`subject_${subjectId}`);
 
-    const updatedSubjects = subjects.filter((id) => id !== subjectId);
+    const updatedSubjects = subjects.filter(
+      (subject) => subject.id !== subjectId
+    );
     localStorage.setItem("subjects", JSON.stringify(updatedSubjects));
     setSubjects(updatedSubjects);
-
-    setSubjectNames((prev) => prev.filter((s) => s.id !== subjectId));
 
     router.push("/");
   };
 
-  const updateSubjectName = (subjectId: string, newName: string) => {
+  const updateSubjectTitle = (subjectId: string, newTitle: string) => {
     const subject = JSON.parse(
       localStorage.getItem(`subject_${subjectId}`) || "null"
     );
     if (!subject) return;
 
-    subject.name = newName;
+    subject.title = newTitle;
     localStorage.setItem(`subject_${subjectId}`, JSON.stringify(subject));
 
-    setSubjectNames((prev) =>
-      prev.map((s) => (s.id === subjectId ? { ...s, name: newName } : s))
+    const updatedSubjects = subjects.map((subject) =>
+      subject.id === subjectId ? { ...subject, title: newTitle } : subject
     );
+    localStorage.setItem("subjects", JSON.stringify(updatedSubjects));
+    setSubjects(updatedSubjects);
   };
 
   return (
     <SubjectContext.Provider
       value={{
-        subjectNames,
+        subjects,
         addSubject,
         deleteSubject,
-        updateSubjectName,
+        updateSubjectTitle,
       }}
     >
       {children}

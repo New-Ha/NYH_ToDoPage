@@ -25,7 +25,7 @@ export const formatDate = (date: Date | string) => {
   const day = String(parsedDate.getDate()).padStart(2, "0");
 
   return {
-    createdAt: `${year}/${month}/${day}`,
-    iconType: "calendar",
+    createdAt: `${month}/${day}/${year}`,
+    iconType: "calender",
   };
 };

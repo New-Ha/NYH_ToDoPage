@@ -1,6 +1,6 @@
 "use client";
 
-import { useTodo } from "@/context/TodoProvider";
+import { useTodo } from "@/contexts/TodoContext";
 import { useState } from "react";
 
 interface AddToDoFormProps {

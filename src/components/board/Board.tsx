@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { BoardType } from "@/types/kanban.type";
+import { useBoard } from "@/contexts/BoardContext";
+import { formatBoardName } from "@/lib/truncateUtils";
 import Icon from "../UI/Icon";
 import ToDoList from "../todo/ToDoList";
-import { BoardType } from "@/types/kanban.type";
-import { useBoard } from "@/context/BoardProvider";
-import { useTodo } from "@/context/TodoProvider";
 import AddToDoForm from "../todo/AddToDoForm";
-import { formatBoardName } from "@/lib/truncateUtils";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { useDroppable } from "@dnd-kit/core";
 
 interface BoardProps {
   subjectId: string;
@@ -15,9 +17,19 @@ interface BoardProps {
 }
 
 const Board = ({ subjectId, board }: BoardProps) => {
-  const { todos } = useTodo();
-  const { deleteBoard, updateBoardTitle } = useBoard();
-  const todoCount = todos.filter((todo) => todo.boardId === board.id).length;
+  const { deleteBoard, updateBoardName } = useBoard();
+  const { attributes, listeners, transform, transition } = useSortable({
+    id: board.id,
+  });
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: `todoContainer-${board.id}`, // 보드 id를 기준으로 Drop Zone 설정
+    data: { type: "board", boardId: board.id },
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [isEditingMode, setIsEditingMode] = useState(false);
@@ -32,7 +44,7 @@ const Board = ({ subjectId, board }: BoardProps) => {
   };
 
   const handleStartBoardNameEdit = () => {
-    setBoardNameEditState({ isEditing: true, name: board.title });
+    setBoardNameEditState({ isEditing: true, name: board.name });
   };
 
   const handleBoardNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,9 +62,9 @@ const Board = ({ subjectId, board }: BoardProps) => {
 
     const newBoardName = boardNameEditState.name.trim()
       ? boardNameEditState.name
-      : board.title;
+      : board.name;
 
-    updateBoardTitle(board.id, newBoardName);
+    updateBoardName(board.id, newBoardName);
     setBoardNameEditState({ isEditing: false, name: "" });
     setIsEditingMode(false);
   };
@@ -69,7 +81,13 @@ const Board = ({ subjectId, board }: BoardProps) => {
   }, [boardNameEditState.isEditing]);
 
   return (
-    <section className="w-[20rem] h-full bg-boardBG rounded-md border-border border-[1px] ">
+    <section
+      ref={setDropRef}
+      style={style}
+      className={`w-[20rem] h-full bg-boardBG rounded-md border-border border-[1px] ${
+        isOver ? "bg-[#E0E0E8]" : ""
+      }`}
+    >
       <div className="h-[4rem] px-4 text-lg flex flex-row justify-between items-center border-b-[1px] border-[#C0C1CC] border-dashed">
         {boardNameEditState.isEditing ? (
           <div className="flex flex-row gap-2">
@@ -79,19 +97,23 @@ const Board = ({ subjectId, board }: BoardProps) => {
               value={boardNameEditState.name}
               onChange={(e) => handleBoardNameChange(e)}
               className="bg-transparent border-b-[1px] border-primary text-[1rem] font-semibold text-primary px-2 py-1 focus:outline-none"
-              placeholder={`${board.title}`}
+              placeholder={`${board.name}`}
             />
           </div>
         ) : (
-          <p className="text-[1.2rem] text-primary font-bold flex flex-row items-center">
-            {formatBoardName(board.title)}
+          <p
+            className="w-full text-[1.2rem] text-primary font-bold flex flex-row items-center"
+            {...attributes}
+            {...listeners}
+          >
+            {formatBoardName(board.name)}
             <span className="px-2 ml-2 bg-border rounded-lg text-[1rem] font-thin">
-              {todoCount}
+              {board.todos.length}
             </span>
           </p>
         )}
         {isEditingMode ? (
-          <div>
+          <div className="flex flex-nowrap">
             {boardNameEditState.isEditing ? (
               <button
                 type="button"
@@ -136,7 +158,9 @@ const Board = ({ subjectId, board }: BoardProps) => {
         )}
       </div>
       <div className="h-full p-4 flex flex-col justify-between">
-        <ToDoList boardId={board.id} isAddingTodo={isAddingTodo} />
+        <div id={`todoContainer-${board.id}`}>
+          <ToDoList boardId={board.id} isAddingTodo={isAddingTodo} />
+        </div>
         {isAddingTodo && (
           <AddToDoForm
             boardId={board.id}

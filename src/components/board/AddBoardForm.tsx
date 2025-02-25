@@ -1,6 +1,6 @@
 "use client";
 
-import { useBoard } from "@/context/BoardProvider";
+import { useBoard } from "@/contexts/BoardContext";
 import { useState } from "react";
 
 type AddBoardFormPropsType = {
