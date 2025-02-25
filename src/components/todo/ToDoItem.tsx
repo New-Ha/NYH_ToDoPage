@@ -91,6 +91,8 @@ const ToDoItem = ({
           ref={inputRef}
           value={contentEditState.content}
           onChange={handleContentChange}
+          onPointerDown={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
           maxLength={50}
           className="mb-2 pt-1 text-base w-full focus:outline-none"
           placeholder={todo.content}
