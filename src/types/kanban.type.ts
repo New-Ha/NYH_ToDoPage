@@ -1,20 +1,22 @@
 export type ToDoType = {
   id: string;
-  boardId: string;
   content: string;
   createdAt: Date;
 };
 
 export type BoardType = {
   id: string;
-  title: string;
-  todos: string[];
+  name: string;
+  todos: ToDoType[];
 };
 
 export type SubjectType = {
   id: string;
-  name: string;
+  title: string;
   boards: string[];
 };
 
-export type SubjectsType = string[];
+export type SubjectsType = {
+  id: string;
+  title: string;
+}[];

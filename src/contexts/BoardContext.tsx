@@ -7,9 +7,10 @@ import { BoardType } from "@/types/kanban.type";
 type BoardContextType = {
   boards: BoardType[];
   getBoards: (boardId: string) => BoardType[];
-  addBoard: (subjectId: string, title: string) => BoardType | null;
+  addBoard: (subjectId: string, name: string) => BoardType | null;
   deleteBoard: (subjectId: string, boardId: string) => void;
-  updateBoardTitle: (boardId: string, newTitle: string) => void;
+  updateBoardName: (boardId: string, newName: string) => void;
+  reorderBoards: (newOrder: string[]) => void;
 };
 
 const BoardContext = createContext<BoardContextType | null>(null);
@@ -36,14 +37,15 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     setBoards(getBoards(subjectId as string));
   }, [subjectId]);
 
-  const addBoard = (subjectId: string, title: string): BoardType | null => {
+  const addBoard = (subjectId: string, name: string): BoardType | null => {
     const newBoardId = crypto.randomUUID();
-    const newBoard: BoardType = { id: newBoardId, title, todos: [] };
+    const newBoard: BoardType = { id: newBoardId, name, todos: [] };
 
     const subject = JSON.parse(
       localStorage.getItem(`subject_${subjectId}`) || "null"
     );
     if (!subject) return newBoard;
+
     if (subject.boards.length >= 10) {
       alert("최대 10개의 보드만 추가할 수 있습니다.");
       return null;
@@ -71,21 +73,40 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     setBoards(getBoards(subjectId));
   };
 
-  const updateBoardTitle = (boardId: string, newTitle: string) => {
+  const updateBoardName = (boardId: string, newName: string) => {
     const board = JSON.parse(
       localStorage.getItem(`board_${boardId}`) || "null"
     );
     if (!board) return;
 
-    board.title = newTitle;
+    board.name = newName;
     localStorage.setItem(`board_${boardId}`, JSON.stringify(board));
 
     setBoards(getBoards(subjectId as string));
   };
 
+  const reorderBoards = (newOrder: string[]) => {
+    if (!subjectId) return;
+    const subject = JSON.parse(
+      localStorage.getItem(`subject_${subjectId}`) || "null"
+    );
+    if (!subject) return;
+
+    subject.boards = newOrder;
+    localStorage.setItem(`subject_${subjectId}`, JSON.stringify(subject));
+    setBoards(getBoards(subjectId as string));
+  };
+
   return (
     <BoardContext.Provider
-      value={{ boards, getBoards, addBoard, deleteBoard, updateBoardTitle }}
+      value={{
+        boards,
+        getBoards,
+        addBoard,
+        deleteBoard,
+        updateBoardName,
+        reorderBoards,
+      }}
     >
       {children}
     </BoardContext.Provider>
