@@ -10,6 +10,12 @@ type TodoContextType = {
   deleteTodo: (boardId: string, todoId: string) => void;
   updateTodo: (boardId: string, todoId: string, newContent: string) => void;
   reorderTodos: (boardId: string, newOrder: ToDoType[]) => void;
+  moveTodo: (
+    fromBoardId: string,
+    toBoardId: string,
+    todoId: string,
+    newIndex: number
+  ) => void;
 };
 
 const TodoContext = createContext<TodoContextType | null>(null);
@@ -115,9 +121,48 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
     setTodos(allTodos);
   };
 
+  const moveTodo = (
+    fromBoardId: string,
+    toBoardId: string,
+    todoId: string,
+    newIndex: number // newIndex가 -1이면 대상 보드의 맨 뒤에 추가
+  ) => {
+    const sourceKey = `board_${fromBoardId}`;
+    const destKey = `board_${toBoardId}`;
+    const sourceBoard = JSON.parse(localStorage.getItem(sourceKey) || "null");
+    const destBoard = JSON.parse(localStorage.getItem(destKey) || "null");
+    if (!sourceBoard || !destBoard) return;
+
+    // source 보드에서 todo 찾기
+    const todo = sourceBoard.todos.find((t: any) => t.id === todoId);
+    if (!todo) return;
+
+    // source 보드에서 todo 제거
+    sourceBoard.todos = sourceBoard.todos.filter((t: any) => t.id !== todoId);
+    localStorage.setItem(sourceKey, JSON.stringify(sourceBoard));
+
+    // newIndex가 -1이면 맨 뒤에 추가, 아니면 해당 위치에 삽입
+    if (newIndex === -1) {
+      destBoard.todos.push(todo);
+    } else {
+      destBoard.todos.splice(newIndex, 0, todo);
+    }
+    localStorage.setItem(destKey, JSON.stringify(destBoard));
+
+    refreshGlobalTodos();
+  };
+
   return (
     <TodoContext.Provider
-      value={{ todos, getTodos, addTodo, deleteTodo, updateTodo, reorderTodos }}
+      value={{
+        todos,
+        getTodos,
+        addTodo,
+        deleteTodo,
+        updateTodo,
+        reorderTodos,
+        moveTodo,
+      }}
     >
       {children}
     </TodoContext.Provider>

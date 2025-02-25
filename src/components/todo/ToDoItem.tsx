@@ -9,7 +9,15 @@ import { useTodo } from "@/contexts/TodoContext";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-const ToDoItem = ({ boardId, todo }: { boardId: string; todo: ToDoType }) => {
+const ToDoItem = ({
+  boardId,
+  todo,
+  isDragging,
+}: {
+  boardId: string;
+  todo: ToDoType;
+  isDragging: boolean;
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { createdAt, iconType } = formatDate(todo.createdAt);
   const { deleteTodo, updateTodo } = useTodo();
@@ -73,7 +81,9 @@ const ToDoItem = ({ boardId, todo }: { boardId: string; todo: ToDoType }) => {
       style={style}
       {...attributes}
       {...listeners}
-      className="bg-white rounded-md shadow-lg p-4"
+      className={`bg-white rounded-md shadow-lg p-4 ${
+        isDragging ? "scale-110" : ""
+      }`}
     >
       {contentEditState.isEditing ? (
         <input
