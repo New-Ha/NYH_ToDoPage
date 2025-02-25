@@ -8,11 +8,13 @@ import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import BoardList from "@/components/board/BoardList";
 import Icon from "@/components/UI/Icon";
+import { useBoard } from "@/contexts/BoardContext";
 
 const SubjectClientPage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { id: subjectId } = useParams();
   const { updateSubjectTitle, deleteSubject } = useSubject();
+  const { reorderBoards } = useBoard();
 
   const [subject, setSubject] = useState<SubjectType | null>(null);
   const [isEditingMode, setIsEditingMode] = useState(false);
@@ -79,7 +81,7 @@ const SubjectClientPage = () => {
       JSON.stringify(updatedSubject)
     );
 
-    setSubject(updatedSubject);
+    reorderBoards(newBoardsOrder);
   };
 
   useEffect(() => {
