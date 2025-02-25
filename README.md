@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NYH_ToDoPage
+> ![Next JS](https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white) + ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) + ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white) 를 사용하여 칸반형 To-Do List를 구현하는 과제
 
-## Getting Started
+|과제 화면|
+|---|
+|![화면 기록 2025-02-25 오후 10 25 07](https://github.com/user-attachments/assets/f62ee45a-ec97-4274-992f-8a5db99131d6)|
 
-First, run the development server:
 
+## 🛠️ Stack
+- 프레임워크 : Next.js(14.x.x 이상)
+- 언어 : TypeScript
+- 스타일링 : TailwindCSS(13.x.x)
+- 데이터 관리: LocalStorage, SesstionStorage
+- 라이브러리 : dnd-kit(drag & drop)
+  
+## 🎯요구사항 정의서
+👉🏻 [요구사항 정의 노션 문서로 이동](https://bedecked-operation-4d1.notion.site/1a1eb405261e80b19508fe4b948bd454?v=1a1eb405261e801f83ac000ccdc12f76&pvs=4)
+
+
+### 📁 파일 구조
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+/src
+ ├── app/
+ │    ├── (subjcet)/[id]/   # 각 주제별로 보여줄 페이지
+ │    │    ├── page.tsx
+ │    │    ├── SubjectClientPage.tsx
+ │    ├──  search/   # 검색어 입력시 결과를 보여줄 페이지
+ │    │    ├── page.tsx
+ │    │    ├── SearchClientPage.tsx
+ │    ├──  page.tsx/    # homePage로 주제가 없을 때 보여지는 페이지, 주제가 있으면 router로 이동시킴
+ │    ├──  layout.tsx/ 
+ │    
+ ├── assets/   # icon svg 
+ ├── components/   # UI 컴포넌트
+ │    ├── board/   # 보드 관련 컴포넌트
+ │    │    ├── Board.tsx
+ │    │    ├── BoardList.tsx
+ │    │    ├── AddBoardForm.tsx
+ │    │
+ │    ├── todo/    # 할 일 관련 컴포넌트
+ │    │    ├── ToDoItem.tsx
+ │    │    ├── ToDoList.tsx
+ │    │    ├── AddToDoForm.tsx
+ │    │
+ │    ├── UI/     
+ │    │    ├── Header.tsx
+ │    │    ├── Icon.tsx
+ │    │    ├── SearchBar.tsx
+ │    
+ ├── context/
+ │    ├── SubjectContext.tsx    # 주제 관련 컨텍스트
+ │    ├── BoardContext.tsx    # 보드 관련 컨텍스트
+ │    ├── TodoContext.tsx    # 할 일 관련 컨텍스트
+ │
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 프로젝트 실행
+⚠️ 배포하지 않은 프로젝트이므로 다운로드 후에 실행해주세요.
+```bash
+$ npm install
+$ npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
