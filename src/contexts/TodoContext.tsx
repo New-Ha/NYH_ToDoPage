@@ -125,7 +125,7 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
     fromBoardId: string,
     toBoardId: string,
     todoId: string,
-    newIndex: number // newIndex가 -1이면 대상 보드의 맨 뒤에 추가
+    newIndex: number
   ) => {
     const sourceKey = `board_${fromBoardId}`;
     const destKey = `board_${toBoardId}`;
@@ -133,16 +133,15 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
     const destBoard = JSON.parse(localStorage.getItem(destKey) || "null");
     if (!sourceBoard || !destBoard) return;
 
-    // source 보드에서 todo 찾기
-    const todo = sourceBoard.todos.find((t: any) => t.id === todoId);
+    const todo = sourceBoard.todos.find((t: ToDoType) => t.id === todoId);
     if (!todo) return;
 
-    // source 보드에서 todo 제거
-    sourceBoard.todos = sourceBoard.todos.filter((t: any) => t.id !== todoId);
+    sourceBoard.todos = sourceBoard.todos.filter(
+      (t: ToDoType) => t.id !== todoId
+    );
     localStorage.setItem(sourceKey, JSON.stringify(sourceBoard));
 
-    // newIndex가 -1이면 맨 뒤에 추가, 아니면 해당 위치에 삽입
-    if (newIndex === -1) {
+    if (newIndex === -1 || newIndex >= destBoard.todos.length) {
       destBoard.todos.push(todo);
     } else {
       destBoard.todos.splice(newIndex, 0, todo);
